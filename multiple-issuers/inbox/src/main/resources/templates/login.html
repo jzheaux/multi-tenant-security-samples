@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="description" content="">
+	<meta name="author" content="">
+	<title>Please Log In</title>
+</head>
+<body>
+<div class="container"
+	 layout:fragment="content">
+	<h1>Please Specify Your Tenant</h1>
+	<label for="tenant"
+		   class="sr-only">Tenant Id</label>
+	<input type="text"
+		   id="tenant"
+		   name="tenant"
+		   class="form-control"
+		   placeholder="Tenant Id"
+		   required>
+	<button class="btn btn-primary"
+			type="button" onclick="location.href='http://' + $('#tenant').val() + '.rp:8080'">Go</button>
+</div>
+</body>
+</html>
