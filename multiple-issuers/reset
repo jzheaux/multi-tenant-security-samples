@@ -1,0 +1,6 @@
+git stash && git stash drop
+git checkout 6b4944841967d371ec0574418d65a0340a48bc76
+gateway/mvnw clean
+inbox/mvnw clean
+message/mvnw clean
+user/mvnw clean

@@ -1,0 +1,26 @@
+logging:
+  level:
+    reator:
+      netty:
+        channel: DEBUG
+users-url: http://localhost:8081/users
+messages-url: http://localhost:8082/messages
+
+spring:
+  security:
+    oauth2:
+      client:
+        provider:
+          tenantone:
+            issuer-uri: http://idp:9999/auth/realms/tenantone
+            user-name-attribute: email
+          tenanttwo:
+            issuer-uri: http://idp:9999/auth/realms/tenanttwo
+        registration:
+          tenantone:
+            client-id: spring-security
+            client-secret: d1a8feec-9505-4241-a2ef-32bbabdd8f98
+            scope: openid,message:read
+          tenanttwo:
+            client-id: spring-security
+            client-secret: bfbd9f62-02ce-4638-a370-80d45514bd0a
