@@ -7,10 +7,10 @@ import org.springframework.stereotype.Component;
  * @author Josh Cummings
  */
 @Component
-class MongoTenantInitiailizer implements SmartInitializingSingleton {
+class TenantInitiailizer implements SmartInitializingSingleton {
 	private final TenantRepository tenants;
 
-	MongoTenantInitiailizer(TenantRepository users) {
+	TenantInitiailizer(TenantRepository users) {
 		this.tenants = users;
 	}
 

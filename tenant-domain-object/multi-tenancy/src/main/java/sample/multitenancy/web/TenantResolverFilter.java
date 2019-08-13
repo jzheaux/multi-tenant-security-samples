@@ -8,26 +8,34 @@ import javax.servlet.http.HttpServletResponse;
 
 import sample.multitenancy.Tenant;
 import sample.multitenancy.TenantHolder;
-import sample.multitenancy.TenantResolver;
+import sample.multitenancy.TenantRepository;
 
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 public class TenantResolverFilter extends OncePerRequestFilter {
-	final TenantResolver tenantResolver;
+	private Converter<HttpServletRequest, String> tenantIdentifierConverter = new HeaderTenantIdentifierResolver();
+	private final TenantRepository tenantRepository;
 
-	public TenantResolverFilter(TenantResolver tenantResolver) {
-		this.tenantResolver = tenantResolver;
+	public TenantResolverFilter(TenantRepository tenantRepository) {
+		this.tenantRepository = tenantRepository;
 	}
 
-	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-		String alias = request.getHeader("X-Tenant-Alias");
+	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+			throws ServletException, IOException {
+
+		String alias = this.tenantIdentifierConverter.convert(request);
 
 		try {
-			Tenant tenant = this.tenantResolver.resolve(alias);
+			Tenant tenant = this.tenantRepository.findByAlias(alias);
 			TenantHolder.setTenant(tenant);
 			filterChain.doFilter(request, response);
 		} finally {
 			TenantHolder.clearTenant();
 		}
+	}
+
+	public void setTenantIdentifierConverter(Converter<HttpServletRequest, String> tenantIdentifierConverter) {
+		this.tenantIdentifierConverter = tenantIdentifierConverter;
 	}
 }

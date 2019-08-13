@@ -8,9 +8,12 @@ import org.hibernate.MultiTenancyStrategy;
 import org.hibernate.cfg.Environment;
 import org.hibernate.context.spi.CurrentTenantIdentifierResolver;
 import org.hibernate.engine.jdbc.connections.spi.MultiTenantConnectionProvider;
+import sample.multitenancy.TenantRepository;
 import sample.multitenancy.schema.TenantHolderMultiTenantConnectionProvider;
 import sample.multitenancy.schema.TenantCurrentTenantIdentifierResolver;
+import sample.multitenancy.web.WebClientTenantRepository;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -20,21 +23,18 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 @SpringBootApplication
 public class MessageApplication {
 
+	@Value("${tenants-url}") String tenantsUrl;
+
 	@Bean
-	MultiTenantConnectionProvider connectionProvider() {
-		return new TenantHolderMultiTenantConnectionProvider();
+	TenantRepository tenantRepository() {
+		return new WebClientTenantRepository(this.tenantsUrl);
 	}
 
 	@Bean
-	CurrentTenantIdentifierResolver tenantIdentifierResolver() {
-		return new TenantCurrentTenantIdentifierResolver();
-	}
-
-	@Bean
-	LocalContainerEntityManagerFactoryBean entityManagerFactory(
-			DataSource dataSource, MultiTenantConnectionProvider connectionProvider,
-			CurrentTenantIdentifierResolver tenantIdentifierResolver) {
+	LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource) {
 		LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
+		MultiTenantConnectionProvider connectionProvider = new TenantHolderMultiTenantConnectionProvider();
+		CurrentTenantIdentifierResolver tenantIdentifierResolver = new TenantCurrentTenantIdentifierResolver();
 
 		HibernateJpaVendorAdapter hibernate = new HibernateJpaVendorAdapter();
 

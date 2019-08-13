@@ -1,36 +1,30 @@
 package sample.multitenancy.web;
 
-import java.util.List;
 import java.util.Map;
 
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 import sample.multitenancy.Tenant;
-import sample.multitenancy.TenantResolver;
+import sample.multitenancy.TenantRepository;
 
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.reactive.function.client.WebClient;
 
-public class WebClientTenants implements TenantResolver {
+public class WebClientTenantRepository implements TenantRepository {
 	private final WebClient webClient = WebClient.create();
 
 	private final String tenantsUrl;
 
-	public WebClientTenants(String tenantsUrl) {
+	public WebClientTenantRepository(String tenantsUrl) {
 		this.tenantsUrl = tenantsUrl;
 	}
 
 	@Cacheable(cacheNames = "tenants")
-	public Tenant resolve(String alias) {
-		return findByAlias(alias).block();
-	}
-
-	private Mono<Tenant> findByAlias(String alias) {
+	public Tenant findByAlias(String alias) {
 		return this.webClient.get()
 				.uri(this.tenantsUrl + "?alias={alias}", alias)
 				.retrieve()
 				.bodyToMono(Map.class)
-				.map(this::fromMap);
+				.map(this::fromMap)
+				.block();
 	}
 
 	private Tenant fromMap(Map<String, Object> map) {

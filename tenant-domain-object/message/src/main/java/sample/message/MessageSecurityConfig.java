@@ -7,9 +7,11 @@ import javax.servlet.http.HttpServletRequest;
 
 import sample.multitenancy.Tenant;
 import sample.multitenancy.TenantHolder;
+import sample.multitenancy.TenantRepository;
 import sample.multitenancy.web.TenantResolverFilter;
-import sample.multitenancy.web.WebClientTenants;
+import sample.multitenancy.web.WebClientTenantRepository;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -30,10 +32,13 @@ import static org.springframework.security.oauth2.jwt.JwtDecoders.fromIssuerLoca
 @EnableWebSecurity
 public class MessageSecurityConfig extends WebSecurityConfigurerAdapter {
 
-	@Value("${tenants-url}") String tenantsUrl;
+	@Autowired
+	TenantRepository tenantRepository;
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
+		TenantResolverFilter filter = new TenantResolverFilter(this.tenantRepository);
+
 		// @formatter:off
 		http
 			.authorizeRequests()
@@ -42,7 +47,7 @@ public class MessageSecurityConfig extends WebSecurityConfigurerAdapter {
 			.oauth2ResourceServer()
 				.authenticationManagerResolver(authenticationManagerResolver())
 				.and()
-			.addFilterBefore(new TenantResolverFilter(new WebClientTenants(this.tenantsUrl)), BearerTokenAuthenticationFilter.class);
+			.addFilterBefore(filter, BearerTokenAuthenticationFilter.class);
 		// @formatter:on
 	}
 

@@ -1,28 +1,23 @@
 package sample.user;
 
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 
-import sample.multitenancy.discriminator.TenantAspect;
-import sample.multitenancy.TenantHolder;
 import sample.multitenancy.Tenant;
+import sample.multitenancy.TenantHolder;
+import sample.multitenancy.TenantRepository;
 import sample.multitenancy.web.TenantResolverFilter;
-import sample.multitenancy.web.WebClientTenants;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationManagerResolver;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtDecoders;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider;
 import org.springframework.security.oauth2.server.resource.authentication.OAuth2IntrospectionAuthenticationProvider;
 import org.springframework.security.oauth2.server.resource.introspection.NimbusOAuth2TokenIntrospectionClient;
@@ -34,12 +29,12 @@ import static org.springframework.security.oauth2.jwt.JwtDecoders.fromIssuerLoca
 @Configuration
 public class UserSecurityConfig extends WebSecurityConfigurerAdapter {
 
-	@Value("${tenants-url}") String tenantsUrl;
+	@Autowired
+	TenantRepository tenantRepository;
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		TenantResolverFilter filter =
-				new TenantResolverFilter(new WebClientTenants(this.tenantsUrl));
+		TenantResolverFilter filter = new TenantResolverFilter(this.tenantRepository);
 		http
 			.authorizeRequests()
 				.anyRequest().authenticated()
@@ -50,10 +45,6 @@ public class UserSecurityConfig extends WebSecurityConfigurerAdapter {
 			.addFilterBefore(filter, BearerTokenAuthenticationFilter.class);
 	}
 
-	@Bean
-	TenantAspect tenantAspect() {
-		return new TenantAspect();
-	}
 
 	private AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver() {
 		Map<Tenant, AuthenticationManager> authenticationManagers = new HashMap<>();
