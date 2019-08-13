@@ -1,0 +1,4 @@
+server:
+  port: 8081
+
+tenants-url: http://localhost:8083/tenants
