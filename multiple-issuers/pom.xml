@@ -4,10 +4,16 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>sample</groupId>
+	<groupId>sample.multiple-issuers</groupId>
     <artifactId>multiple-issuers</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
+
+    <parent>
+	    <groupId>sample</groupId>
+	    <artifactId>multi-tenancy-demos</artifactId>
+	    <version>0.0.1-SNAPSHOT</version>
+    </parent>
 
     <modules>
         <module>user</module>
